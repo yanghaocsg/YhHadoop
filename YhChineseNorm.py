@@ -111,6 +111,19 @@ def string2List(ustring):
     if len(utmp)!=0:
         retList.append(uniform(''.join(utmp)))
     return [i.lower() for i in retList]
+
+#string2List+bigram for chinese    
+def string2ListBigram(ustring):
+    """将ustring按照中文，字母，数字分开"""
+    list_tmp = string2List(ustring)
+    resList = []
+    for l in list_tmp:
+        if len(l)>2 and is_chinese(l[0]):
+            for i in range(len(l)-1):
+                resList.append(l[i:i+2])
+        else:
+            resList.append(l)
+    return resList
     
 def string2ListRaw(ustring):
     str_tmp = stringQ2B(ustring).lower()
@@ -243,12 +256,14 @@ def get_nofuzzy_keyword(ifn='', ofn=''):
 
 
 if __name__=="__main__":
-    '''
+
     logger.error('here')
-    ustring=u'中国 人名maggie.Q maggieQ, 江南style maggieq123'
+    ustring=u'中国 人名maggie.Q maggieQ, 江南style maggieq123 新媒体排行榜'
     
     ret=string2List(ustring)
     logger.error('str2list %s[%s]' % ('\t'.join(ret), ustring))
+    ret=string2ListBigram(ustring)
+    logger.error('string2ListBigram %s[%s]' % ('\t'.join(ret), ustring))
     ret = string2Character(ustring)
     logger.error('str2char%s[%s]' % ('\t'.join(ret), ustring))
     ret = string2ListRaw(ustring)
@@ -260,3 +275,4 @@ if __name__=="__main__":
     #get_nofuzzy_keyword(sys.argv[1])
     #ustring=u'中国 人名maggie.Q maggieQ, 江南style maggieq123'
     #logger.error('|'.join(string2Character(ustring)))
+    '''
