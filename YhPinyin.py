@@ -25,7 +25,7 @@ class YhPinyin:
             if(len(pars) < 2):
                 continue
             self.dict_pinyin[pars[0]] = pars[1:]
-        #logger.error('dict_pinyin len [%s]' % len(self.dict_pinyin))
+        logger.error('dict_pinyin len [%s]' % len(self.dict_pinyin))
     
     def line2py_list(self, line=u'一石二鸟'):
         list_py = []
@@ -64,7 +64,51 @@ class YhPinyin:
             set_py.remove(line)
         if line in ['abc']:
             logger.error('%s\t%s' % (line, '|'.join(set_py)))
+        logger.error('line2py_list %s\t%s' % (line, '|'.join(set_py)))
         return set_py
+    
+    def line2py_fuzzy(self, line=u'胃痛'):
+        set_py = set()
+        #more than 10, not translate
+        if len(line)>10:
+            return set_py
+        for  w  in line:
+            set_tmp = set()
+            if w in self.dict_pinyin:
+                for wpinyin in self.dict_pinyin[w]:
+                    set_wpinyin = set([wpinyin])
+                    if wpinyin[0] in ['l', 'n']:
+                        set_wpinyin.add('l'+wpinyin[1:])
+                        set_wpinyin.add('n'+wpinyin[1:])
+                    if wpinyin[-2:] in ['an', 'on', 'in']:
+                        set_wpinyin.add(wpinyin+'g')
+                    if wpinyin[-3:] in ['ang', 'ing', 'ong']:
+                        set_wpinyin.add(wpinyin[:-1])
+                        #logger.error('|'.join(set_wpinyin))
+                    #logger.error('w wpinyin %s\t%s\t%s' % (w, wpinyin, '|'.join(set_wpinyin)))
+                    for sub_wpinyin in set_wpinyin:
+                        if not set_py:
+                            set_tmp.add(sub_wpinyin)
+                        else:
+                            for p in set_py:
+                                set_tmp.add(p+sub_wpinyin)
+                        
+                    
+            else :
+                if not set_py:
+                    set_tmp.add(w)
+                else:
+                    for p in set_py:
+                        set_tmp.add(p+w)
+            set_py = set(set_tmp)
+            #logger.error('%s\t%s' % (w, '|'.join(set_py)))
+        if line in set_py:
+            set_py.remove(line)
+        if line in ['abc']:
+            logger.error('%s\t%s' % (line, '|'.join(set_py)))
+        #logger.error('line2py_fuzzy %s\t%s' % (line, '|'.join(set_py)))
+        return set_py
+    
     
     def file2py(self, ifn='./txt/dict_white_singer.txt', ofn='./txt/dict_white_singer_py.txt'):
         ofh = open(ofn, 'w+')
@@ -80,11 +124,12 @@ class YhPinyin:
 yhpinyin = YhPinyin()
         
 def test_Chinese2Pingying():
-    '''
-    yhpinyin.line2py('abc')
-    yhpinyin.file2py('./txt/dict_keyword.txt', './txt/dict_keyword_py.txt')
-    '''
-    yhpinyin.line2py_list()
+    logger.error(yhpinyin.line2py(u'心藏病'))
+    logger.error(yhpinyin.line2py_list(u'心藏病'))
+    logger.error(yhpinyin.line2py_fuzzy(u'胃痛'))
+    logger.error(yhpinyin.line2py_fuzzy(u'味疼'))
+    #yhpinyin.file2py('./txt/dict_keyword.txt', './txt/dict_keyword_py.txt')
+    logger.error(yhpinyin.line2py_list())
     
 if __name__=='__main__':
     test_Chinese2Pingying()
